@@ -6,20 +6,13 @@ const employeeSchema = new mongoose.Schema({
     email:String,
     phone:String,
     address:String,
-    education:{
-        ssc:String,
-        hsc:String,
-        diploma:String,
-        graduation:String
-    },
-
-    officialDetails:{
-        empId:String,
-        department:String,
-        designation:String,
-        salary:String,
-        joiningDate:String,
-    },
+    dob:String,
+    address:String,
+    graduation:String,
+    designation:String,
+    salary:String,
+    joiningDate:String,
+   
    
 });
 const Employee=mongoose.model("employees",employeeSchema);
