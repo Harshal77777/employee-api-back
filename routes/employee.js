@@ -1,4 +1,7 @@
 const express = require("express");
+const multer = require("multer");
+const path = require("path");
+
 const {
     addEmployee,
     updateEmployee,
@@ -9,16 +12,32 @@ const {
 
 const router = express.Router();
 
-// Add employee
-router.post("/", async (req, res) => {
+// Set up multer for file uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/");  // Store files in the "uploads" folder
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname)); // Unique file names
+    }
+});
+
+const upload = multer({ storage });
+
+// Add Employee with File Upload
+router.post("/", upload.fields([{ name: "marksheet" }, { name: "resume" }]), async (req, res) => {
     try {
         const model = req.body;
+        model.marksheet = req.files["marksheet"] ? req.files["marksheet"][0].path : "";
+        model.resume = req.files["resume"] ? req.files["resume"][0].path : "";
+
         const employee = await addEmployee(model);
         res.status(201).send(employee);
     } catch (error) {
         res.status(500).send({ message: "Error adding employee", error: error.message });
     }
 });
+
 
 // Update employee
 router.put("/:id", async (req, res) => {
