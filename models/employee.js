@@ -12,6 +12,8 @@ const employeeSchema = new mongoose.Schema({
     designation:String,
     salary:String,
     joiningDate:String,
+    marksheet: String,  
+    resume: String 
    
    
 });
