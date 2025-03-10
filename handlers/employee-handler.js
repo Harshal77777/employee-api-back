@@ -9,9 +9,9 @@ async function addEmployee(model) {
 
 // Update employee
 async function updateEmployee(id, model) {
-    const result = await Employee.findByIdAndUpdate(id, model, { new: true });
-    return result ? result.toObject() : null;
+    return await Employee.findByIdAndUpdate(id, model, { new: true, runValidators: true });
 }
+
 
 // Delete employee
 async function deleteEmployee(id) {

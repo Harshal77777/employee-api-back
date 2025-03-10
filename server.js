@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const path = require("path");
+const attendanceRoutes = require("./routes/attendance");
 
 dotenv.config();
 const app = express();
@@ -27,6 +28,7 @@ const authRoutes = require("./routes/auth");
 const employeeRoutes = require("./routes/employee");
 app.use("/api/auth", authRoutes);
 app.use("/employee", employeeRoutes);
+app.use("/attendance", attendanceRoutes);
 
 // Serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

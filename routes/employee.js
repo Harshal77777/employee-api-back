@@ -40,16 +40,25 @@ router.post("/", upload.fields([{ name: "marksheet" }, { name: "resume" }]), asy
 });
 
 
-// Update employee
+
+// ✅ Update employee
 router.put("/:id", async (req, res) => {
     try {
         const id = req.params.id;
+
+        // ✅ Validate ID format
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).send({ message: "Invalid Employee ID" });
+        }
+
         const model = req.body;
-        const updated = await updateEmployee(id, model);
-        if (!updated) {
+        const updatedEmployee = await updateEmployee(id, model);
+
+        if (!updatedEmployee) {
             return res.status(404).send({ message: "Employee not found" });
         }
-        res.send({ message: "Employee updated successfully" });
+
+        res.status(200).send({ message: "Employee updated successfully", employee: updatedEmployee });
     } catch (error) {
         res.status(500).send({ message: "Error updating employee", error: error.message });
     }
