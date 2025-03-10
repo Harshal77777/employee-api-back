@@ -12,13 +12,14 @@ const {
 
 const router = express.Router();
 
-// Set up multer for file uploads
+
+// Multer Storage Configuration
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "uploads/");  // Store files in the "uploads" folder
+        cb(null, "uploads/");  // Store files in 'uploads' folder
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Unique file names
+        cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
     }
 });
 
@@ -28,27 +29,36 @@ const upload = multer({ storage });
 router.post("/", upload.fields([{ name: "marksheet" }, { name: "resume" }]), async (req, res) => {
     try {
         const model = req.body;
-        model.marksheet = req.files["marksheet"] ? req.files["marksheet"][0].path : "";
-        model.resume = req.files["resume"] ? req.files["resume"][0].path : "";
+        model.marksheet = req.files["marksheet"] ? req.files["marksheet"][0].filename : "";
+        model.resume = req.files["resume"] ? req.files["resume"][0].filename : "";
 
         const employee = await addEmployee(model);
-        res.status(201).send(employee);
+        res.status(201).json(employee);
     } catch (error) {
-        res.status(500).send({ message: "Error adding employee", error: error.message });
+        res.status(500).json({ message: "Error adding employee", error: error.message });
     }
 });
 
 
-// Update employee
+
+// ✅ Update employee
 router.put("/:id", async (req, res) => {
     try {
         const id = req.params.id;
+
+        // ✅ Validate ID format
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).send({ message: "Invalid Employee ID" });
+        }
+
         const model = req.body;
-        const updated = await updateEmployee(id, model);
-        if (!updated) {
+        const updatedEmployee = await updateEmployee(id, model);
+
+        if (!updatedEmployee) {
             return res.status(404).send({ message: "Employee not found" });
         }
-        res.send({ message: "Employee updated successfully" });
+
+        res.status(200).send({ message: "Employee updated successfully", employee: updatedEmployee });
     } catch (error) {
         res.status(500).send({ message: "Error updating employee", error: error.message });
     }
