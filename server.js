@@ -7,7 +7,6 @@ const path = require("path");
 
 dotenv.config();
 const app = express();
-
 // Middleware
 app.use(express.json());
 app.use(cors({
@@ -30,8 +29,11 @@ mongoose.connect(process.env.MONGO_URI, {
 const authRoutes = require("./routes/auth");
 const employeeRoutes = require("./routes/employee");
 const { verifyToken, isAdmin } = require("./middleware/auth-middleware");
+const leaveRoutes = require("./routes/leave");
 app.use("/auth", authRoutes);
 app.use("/employee",verifyToken, isAdmin,employeeRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use('/api/leave',leaveRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -39,4 +41,4 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT})`));
