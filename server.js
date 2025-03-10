@@ -8,31 +8,37 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors({
-  origin: 'http://localhost:4200', // Your Angular app's URL
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "http://localhost:4200", // Your Angular app's URL
+    credentials: true,
+  })
+);
 
 // Database Connection with better error handling
-mongoose.connect(process.env.MONGO_URI, { 
-  useNewUrlParser: true, 
-  useUnifiedTopology: true 
-})
-.then(() => console.log("MongoDB Connected"))
-.catch(err => {
-  console.error("MongoDB Connection Error:", err);
-  process.exit(1);
-});
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => {
+    console.error("MongoDB Connection Error:", err);
+    process.exit(1);
+  });
 
 // Routes
 const authRoutes = require("./routes/auth");
 const employeeRoutes = require("./routes/employee");
-app.use("/api/auth", authRoutes);
-app.use("/employee",employeeRoutes);
+const { verifyToken, isAdmin } = require("./middleware/auth-middleware");
+
+app.use("/auth", authRoutes);
+app.use("/employee", verifyToken, isAdmin, employeeRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: 'Something broke!' });
+  res.status(500).json({ error: "Something broke!" });
 });
 
 const PORT = process.env.PORT || 3000;
