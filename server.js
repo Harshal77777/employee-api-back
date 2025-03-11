@@ -10,7 +10,6 @@ const bcrypt = require("bcryptjs");
 
 dotenv.config();
 const app = express();
-
 // Middleware
 app.use(express.json());
 
@@ -41,9 +40,10 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
 const { verifyToken, isAdmin } = require("./middleware/auth-middleware");
+const leaveRoutes = require("./routes/leave");
 app.use("/auth", authRoutes);
 app.use("/employee",verifyToken, isAdmin,employeeRoutes);
-
+app.use("/api/leave",leaveRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
@@ -52,4 +52,4 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT})`));
