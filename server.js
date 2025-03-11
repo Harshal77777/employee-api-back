@@ -47,6 +47,7 @@ const { verifyToken, isAdmin } = require("./middleware/auth-middleware");
 const leaveRoutes = require("./routes/leave");
 app.use("/auth", authRoutes);
 app.use("/employee",verifyToken, isAdmin,employeeRoutes);
+app.use("/api/leave",leaveRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

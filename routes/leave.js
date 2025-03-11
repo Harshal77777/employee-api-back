@@ -1,16 +1,12 @@
 const express = require("express");
-const Leave = require("../models/leave"); // Ensure correct capitalization
+const Leave = require("../models/leave");
+const Employee = require("../models/employee"); // ✅ Import Employee model
 const router = express.Router();
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 
 dotenv.config();
 
-// 🔍 Debugging - Check if environment variables are loaded
-console.log("Email User:", process.env.EMAIL_USER);
-console.log("Email Pass:", process.env.EMAIL_PASS);
-
-// ✅ Configure Nodemailer
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -19,39 +15,42 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ✅ Test API route
-router.get("/", (req, res) => {
-  console.log("🔵 GET /api/leave called");
-  res.status(200).json({ message: "Leave API is working" });
-});
-
-// ✅ Apply Leave Route (Only One Definition)
 router.post("/applyleave", async (req, res) => {
   console.log("🔵 Received Request:", req.body);
 
-  if (!req.body || Object.keys(req.body).length === 0) {
-    return res.status(400).json({ message: "Request body is missing or empty" });
-  }
+  const { email, reason, date } = req.body;
 
-  const { employeeId, reason, date } = req.body;
-
-  if (!employeeId || !reason || !date) {
+  if (!email || !reason || !date) {
     return res.status(400).json({ message: "All fields are required" });
   }
 
   try {
-    // ✅ Save leave request to database
-    const newLeave = new Leave({ employeeId, reason, date, status: "Pending" });
+    // ✅ Find employee by email
+    const employee = await Employee.findOne({ email });
+
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+
+    // ✅ Save leave request
+    const newLeave = new Leave({
+      employeeId: employee._id, // ✅ Now using _id as employee ID
+      reason,
+      date,
+      status: "Pending",
+    });
+
     await newLeave.save();
 
     // ✅ Send Email Notification
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: "admin@gmail.com",
+      to: "vishalchaudhari4530@gmail.com",
       subject: "New Leave Request Submitted",
       html: `
         <h2>New Leave Request</h2>
-        <p><strong>Employee ID:</strong> ${employeeId}</p>
+        <p><strong>Employee Name:</strong> ${employee.name}</p>
+        <p><strong>Email:</strong> ${employee.email}</p>
         <p><strong>Reason:</strong> ${reason}</p>
         <p><strong>Date:</strong> ${date}</p>
         <p><strong>Status:</strong> Pending</p>
