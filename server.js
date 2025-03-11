@@ -12,10 +12,8 @@ dotenv.config();
 const app = express();
 // Middleware
 app.use(express.json());
-app.use(cors({
-  origin: 'http://localhost:4200', // Your Angular app's URL
-  credentials: true
-}));
+
+app.use(cors());
 
 // Database Connection with better error handling
 mongoose.connect(process.env.MONGO_URI, { 
@@ -34,9 +32,6 @@ const employeeRoutes = require("./routes/employee");
 
 const checkInOutRoutes = require("./routes/checkInOut");
 
-
-app.use("/api/auth", authRoutes);
-app.use("/employee", employeeRoutes);
 app.use("/checkinout", checkInOutRoutes);
 
 // Serve uploaded files statically
@@ -52,6 +47,7 @@ app.use("/api/leave",leaveRoutes);
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something broke!' });
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 const PORT = process.env.PORT || 3000;
