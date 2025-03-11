@@ -29,6 +29,7 @@ router.post("/applyleave", async (req, res) => {
     const employee = await Employee.findOne({ email });
 
     if (!employee) {
+      console.log("❌ Employee not found",email);
       return res.status(404).json({ message: "Employee not found" });
     }
 
@@ -41,7 +42,7 @@ router.post("/applyleave", async (req, res) => {
     });
 
     await newLeave.save();
-
+    
     // ✅ Send Email Notification
     const mailOptions = {
       from: process.env.EMAIL_USER,
