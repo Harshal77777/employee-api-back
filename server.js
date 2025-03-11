@@ -3,7 +3,10 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const path = require("path");
+const bcrypt = require("bcryptjs");
+
 // const attendanceRoutes = require("./routes/attendance");
+
 
 dotenv.config();
 const app = express();
@@ -28,12 +31,22 @@ mongoose.connect(process.env.MONGO_URI, {
 // Routes
 const authRoutes = require("./routes/auth");
 const employeeRoutes = require("./routes/employee");
+
+const checkInOutRoutes = require("./routes/checkInOut");
+
+
+app.use("/api/auth", authRoutes);
+app.use("/employee", employeeRoutes);
+app.use("/checkinout", checkInOutRoutes);
+
+// Serve uploaded files statically
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+
 const { verifyToken, isAdmin } = require("./middleware/auth-middleware");
 const leaveRoutes = require("./routes/leave");
 app.use("/auth", authRoutes);
 app.use("/employee",verifyToken, isAdmin,employeeRoutes);
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-app.use('/api/leave',leaveRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
