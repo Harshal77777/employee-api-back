@@ -15,6 +15,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors());
+app.use(cors({ origin: 'http://localhost:4200' }));
 
 // Database Connection with better error handling
 mongoose.connect(process.env.MONGO_URI, { 
