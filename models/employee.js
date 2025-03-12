@@ -13,8 +13,8 @@ const employeeSchema = new mongoose.Schema({
     salary:String,
     joiningDate:String,
     marksheet: String,  
-    resume: String 
-   
+    resume: String ,
+    leaveBalance: { type: Number, default: 10 } 
    
 });
 const Employee=mongoose.model("employees",employeeSchema);

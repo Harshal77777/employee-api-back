@@ -9,3 +9,4 @@ const checkInOutSchema = new mongoose.Schema({
 
 const CheckInOut = mongoose.model("CheckInOut", checkInOutSchema);
 module.exports = CheckInOut;
+ 
