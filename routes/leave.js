@@ -38,16 +38,22 @@ router.post('/applyleave', async (req, res) => {
     }
 });
 
-// ✅ Get Pending Leave Requests for Admin
 router.get('/all', async (req, res) => {
-    try {
-        const leaves = await Leave.find({ status: "Pending" }).populate('employeeId', 'name email leaveBalance');
-        res.status(200).json(leaves);
-    } catch (error) {
-        console.error("❌ Error fetching leave requests:", error);
-        res.status(500).json({ message: "❌ Server error", error });
-    }
+  try {
+      const { role } = req.query; // Assuming role is passed in the request
+
+      if (role !== 'admin') {
+          return res.status(403).json({ message: "❌ Access denied! Only admin can view leave requests." });
+      }
+
+      const leaves = await Leave.find().populate('employeeId', 'email name'); // Fetch employee details
+      res.status(200).json(leaves);
+  } catch (error) {
+      console.error('❌ Error fetching leave requests:', error);
+      res.status(500).json({ message: '❌ Server error', error });
+  }
 });
+
 
 // ✅ Admin Approves/Rejects Leave
 router.put('/update/:leaveId', async (req, res) => {
