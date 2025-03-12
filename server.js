@@ -7,48 +7,47 @@ const bcrypt = require("bcryptjs");
 
 // const attendanceRoutes = require("./routes/attendance");
 
-
 dotenv.config();
 const app = express();
+
 // Middleware
 app.use(express.json());
 
 app.use(cors());
-app.use(cors({ origin: 'http://localhost:4200' }));
+app.use(cors({ origin: "http://localhost:4200" }));
 
 // Database Connection with better error handling
-mongoose.connect(process.env.MONGO_URI, { 
-  useNewUrlParser: true, 
-  useUnifiedTopology: true 
-})
-.then(() => console.log("MongoDB Connected"))
-.catch(err => {
-  console.error("MongoDB Connection Error:", err);
-  process.exit(1);
-});
+mongoose
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB Connected"))
+  .catch((err) => {
+    console.error("MongoDB Connection Error:", err);
+    process.exit(1);
+  });
 
 // Routes
 const authRoutes = require("./routes/auth");
 const employeeRoutes = require("./routes/employee");
-
 const checkInOutRoutes = require("./routes/checkInOut");
 
 app.use("/checkinout", checkInOutRoutes);
-
-// Serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 
 const { verifyToken, isAdmin } = require("./middleware/auth-middleware");
 const leaveRoutes = require("./routes/leave");
+
 app.use("/auth", authRoutes);
-app.use("/employee",verifyToken, isAdmin,employeeRoutes);
-app.use("/api/leave",leaveRoutes);
+app.use("/employee", verifyToken, isAdmin, employeeRoutes);
+app.use("/api/leave", leaveRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: 'Something broke!' });
-  res.status(500).json({ error: 'Something went wrong!' });
+  res.status(500).json({ error: "Something broke!" });
+  res.status(500).json({ error: "Something went wrong!" });
 });
 
 const PORT = process.env.PORT || 3000;
