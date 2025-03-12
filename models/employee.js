@@ -1,21 +1,21 @@
-const mongoose=require("mongoose");
-const { Schema } = mongoose;
+const mongoose = require("mongoose");
+
 const employeeSchema = new mongoose.Schema({
-    name:String,
-    dob:String,
-    email:String,
-    phone:String,
-    address:String,
-    dob:String,
-    address:String,
-    graduation:String,
-    designation:String,
-    salary:String,
-    joiningDate:String,
+    name: String,
+    dob: String,
+    email: { type: String, required: true, lowercase: true, unique: true }, 
+    phone: String,
+    address: String,
+    graduation: String,
+    designation: String,
+    salary: String,
+    joiningDate: String,
     marksheet: String,  
-    resume: String ,
+    resume: String,
     leaveBalance: { type: Number, default: 10 } 
-   
 });
-const Employee=mongoose.model("employees",employeeSchema);
+
+// 🔹 Check if the model is already defined, if so, use it instead of redefining
+const Employee = mongoose.models.Employee || mongoose.model("Employee", employeeSchema);
+
 module.exports = Employee;
