@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const Leave = require('../models/Leave'); // Leave model
-const Employee = require('../models/Employee'); // Employee model
+const Leave = require('../models/leave'); // Leave model
+const Employee = require('../models/employee'); // Employee model
 
 const router = express.Router();
 
