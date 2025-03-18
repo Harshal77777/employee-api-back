@@ -113,10 +113,10 @@ const userSchema = require('../models/User.js');
 // ✅ Employee submits leave request
 router.post('/', async (req, res) => { 
   try {
-    const { employeeId, reason, date } = req.body;
+    const { employeeId, reason, date,type } = req.body;
     console.log('Received Leave Request:', req.body);
 
-    if (!employeeId || !reason || !date) {
+    if (!employeeId || !reason || !date || !type) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
@@ -125,7 +125,7 @@ router.post('/', async (req, res) => {
       return res.status(404).json({ error: 'Employee not found' });
     }
 
-    const newLeave = new LeaveRequest({ employeeId, reason, date, status: 'pending' });
+    const newLeave = new LeaveRequest({ employeeId, reason, date, status,type: 'pending' });
     await newLeave.save();
 
     res.status(201).json({ message: 'Leave request submitted successfully' });
@@ -161,19 +161,32 @@ router.get('/employee/:id', async (req, res) => {
   }
 });
 
-// ✅ Admin updates leave request status
 router.put('/update/:id', async (req, res) => {
   try {
     const { status } = req.body;
-    const leave = await LeaveRequest.findByIdAndUpdate(req.params.id, { status }, { new: true });
+
+    // Validate status value
+    if (!['approved', 'rejected', 'pending'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    // Find the leave request and update its status
+    const leave = await LeaveRequest.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true } // Return the updated document
+    ).populate('employeeId', 'name email');
 
     if (!leave) {
       return res.status(404).json({ message: 'Leave request not found' });
     }
 
-    res.json(leave);
+    res.json({ message: 'Leave status updated successfully', leave });
+
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error updating leave status:', error);
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 module.exports = router;
