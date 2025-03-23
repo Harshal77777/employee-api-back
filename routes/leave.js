@@ -1,181 +1,78 @@
-// const express = require('express');
-// const router = express.Router();
-// const LeaveRequest = require('../models/leave.js'); // Mongoose model
-// const employeeSchema = require('../models/employee.js');
-// const userSchema = require('../models/User.js');
-
-
-// router.post('/', async (req, res) => { 
-//   try {
-//     const { employeeId, reason, date } = req.body;
-//     console.log('Received Leave Request:', req.body);
-
-//     if (!employeeId || !reason || !date) {
-//       return res.status(400).json({ error: 'Missing required fields' });
-//     }
-
-//     // Check if employee exists
-//     const employee = await userSchema.findById(employeeId);
-//     if (!employee) {
-//       return res.status(404).json({ error: 'Employee not found' });
-//     }
-
-//     const newLeave =  new LeaveRequest({ employeeId, reason, date, status: 'pending' });
-
-//     // ✅ Use `await` to ensure the document is saved before responding
-//     await newLeave.save();
-
-//     res.status(201).json({ message: 'Leave request submitted successfully' });
-
-//   } catch (error) {
-//     console.error('Error creating leave request:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }  
-// });
-
-
-
-// router.get('/all', async (req, res) => {
-//   try {
-//     const leaveRequests = await LeaveRequest.find();  // ✅ Fetch all leave requests
-//     return res.status(200).json(leaveRequests);
-//   } catch (error) {
-//     console.error('Error fetching leave requests:', error);
-//     return res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
-
-
-// // ✅ Fetch employee's own leave requests
-// router.get('/employee/:id', async (req, res) => {
-//   try {
-//     const leaves = await LeaveRequest.find({ employeeId: req.params.id });
-//     res.json(leaves);
-//   } catch (error) {
-//     res.status(500).json({ error: 'Error fetching leave requests' });
-//   }
-// });router.get('/employee/:id', async (req, res) => {
-//   try {
-//     const leaves = await LeaveRequest.find({ employeeId: req.params.id }).exec();
-
-//     if (!leaves || leaves.length === 0) {
-//       return res.status(404).json({ message: 'No leave requests found for this employee' });
-//     }
-
-//     res.json(leaves);
-//   } catch (error) {
-//     console.error('Error fetching employee leave requests:', error);
-//     res.status(500).json({ error: 'Error fetching leave requests' });
-//   }
-// });
-// router.put('/update/:id', async (req, res) => {
-//   try {
-//     console.log("Received ID:", req.params.id);
-//     console.log("Request Body:", req.body);
-
-//     const leaveId = req.params.id;
-
-//     const { status } = req.body;
-
-//     // ✅ Validate status
-//     if (!['approved', 'rejected', 'pending'].includes(status)) {
-//       console.log("Invalid status received:", status);
-//       return res.status(400).json({ error: 'Invalid status' });
-//     }
-
-//     // ✅ Find leave request
-//     const leaveRequest = await LeaveRequest.findById(leaveId);
-    
-//     if (!leaveRequest) {
-//       console.log("Leave request not found for ID:", leaveId);
-//       return res.status(404).json({ error: 'Leave request not found' });
-//     }
-
-//     // ✅ Update status and save
-//     leaveRequest.status = status;
-//     await leaveRequest.save();
-
-//     res.json({ message: 'Leave status updated', leaveRequest });
-//   } catch (error) {
-//     console.error('Error updating leave status:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// });
-
-// module.exports = router;
-
-
 const express = require('express');
 const router = express.Router();
-const LeaveRequest = require('../models/leave.js'); // Mongoose model
-const userSchema = require('../models/User.js');
+const User = require('../models/User.js');
+const Leaves = require('../models/leave.js'); // Corrected model reference
 
-// ✅ Employee submits leave request
-router.post('/', async (req, res) => { 
+// 🟢 Submit a leave request (Employee)
+router.post('/', async (req, res) => {
   try {
-    const { employeeId, reason, date,type } = req.body;
-    console.log('Received Leave Request:', req.body);
-
-    if (!employeeId || !reason || !date || !type) {
+    const { email, reason, fromDate, toDate, type } = req.body;
+    
+    if (!email || !reason || !fromDate || !toDate || !type) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    const employee = await userSchema.findById(employeeId);
+    const employee = await User.findOne({ email });
     if (!employee) {
       return res.status(404).json({ error: 'Employee not found' });
     }
 
-    const newLeave = new LeaveRequest({ employeeId, reason, date, status,type: 'pending' });
+    const newLeave = new Leaves({  
+      email: employee.email, // Removed employeeId, only using email
+      reason, 
+      fromDate, 
+      toDate, 
+      type, 
+      status: 'pending'
+    });
+
     await newLeave.save();
-
-    res.status(201).json({ message: 'Leave request submitted successfully' });
+    res.status(201).json({ message: 'Leave request submitted successfully', leave: newLeave });
 
   } catch (error) {
-    console.error('Error creating leave request:', error);
+    console.error('Error submitting leave request:', error);
     res.status(500).json({ error: 'Internal server error' });
-  }  
-});
-
-// ✅ Admin fetches all leave requests
-router.get('/all', async (req, res) => {
-  try {
-    const leaveRequests = await LeaveRequest.find().populate('employeeId', 'name email');
-    return res.status(200).json(leaveRequests);
-  } catch (error) {
-    console.error('Error fetching leave requests:', error);
-    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
-// ✅ Employee fetches their own leave requests
-router.get('/employee/:id', async (req, res) => {
+// 🟢 Fetch all leave requests (Admin)
+router.get('/all', async (req, res) => {
   try {
-    const leaves = await LeaveRequest.find({ employeeId: req.params.id }).populate('employeeId', 'name email');
+    const leaves = await Leaves.find();
+    res.status(200).json(leaves);
+  } catch (error) {
+    console.error('Error fetching leave requests:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// 🟢 Fetch leave requests for a specific employee
+router.get('/employee/:email', async (req, res) => {
+  try {
+    const leaves = await Leaves.find({ email: req.params.email });
     if (!leaves.length) {
       return res.status(404).json({ message: 'No leave requests found for this employee' });
     }
     res.json(leaves);
   } catch (error) {
     console.error('Error fetching employee leave requests:', error);
-    res.status(500).json({ error: 'Error fetching leave requests' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
+// 🟢 Update leave request status (Admin)
 router.put('/update/:id', async (req, res) => {
   try {
     const { status } = req.body;
-
-    // Validate status value
     if (!['approved', 'rejected', 'pending'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status' });
     }
 
-    // Find the leave request and update its status
-    const leave = await LeaveRequest.findByIdAndUpdate(
+    const leave = await Leaves.findByIdAndUpdate(
       req.params.id,
       { status },
-      { new: true } // Return the updated document
-    ).populate('employeeId', 'name email');
+      { new: true }
+    );
 
     if (!leave) {
       return res.status(404).json({ message: 'Leave request not found' });
@@ -186,6 +83,22 @@ router.put('/update/:id', async (req, res) => {
   } catch (error) {
     console.error('Error updating leave status:', error);
     res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// 🟢 Delete a Leave Request (Admin)
+router.delete('/delete/:id', async (req, res) => {
+  try {
+    const deletedLeave = await Leaves.findByIdAndDelete(req.params.id);
+
+    if (!deletedLeave) {
+      return res.status(404).json({ message: "Leave request not found." });
+    }
+
+    res.status(200).json({ message: "Leave request deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting leave request:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
