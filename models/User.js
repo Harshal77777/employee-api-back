@@ -1,10 +1,15 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  name: String,
-  email: { type: String, unique: true, required: true },
-  password: { type: String, required: true },
-  isAdmin: { type: Boolean, default: false },
+    name: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true },
+    mobile: { type: String, required: true, unique: true }, // Added mobile number
+    otp: { type: String },
+    otpExpires: { type: Date },
+    isAdmin: { type: Boolean, default: false },
+    resetToken: { type: String },  // ✅ Added reset token
+    resetTokenExpires: { type: Date }  // ✅ Expiry time
 });
 
 module.exports = mongoose.model("User", userSchema);
