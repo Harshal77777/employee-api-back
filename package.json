@@ -7,6 +7,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "e": "^0.2.33",
+    "expres": "^0.0.5",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.12.2",
