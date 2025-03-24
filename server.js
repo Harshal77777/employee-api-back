@@ -1,3 +1,4 @@
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -33,7 +34,7 @@ const authRoutes = require("./routes/auth");
 const employeeRoutes = require("./routes/employee");
 const checkInOutRoutes = require("./routes/checkInOut");
 const leaveRoutes = require("./routes/leave");
-const payrollRoutes=require("./routes/payroll");
+
 app.use("/checkinout", checkInOutRoutes);
 app.use("/api/check-in-out", checkInOutRoutes);
 // Serve uploaded files statically
@@ -43,7 +44,7 @@ const { verifyToken, isAdmin } = require("./middleware/auth-middleware");
 app.use("/auth", authRoutes);
 app.use("/employee",verifyToken, isAdmin,employeeRoutes);
 app.use("/api/leave",leaveRoutes);
-app.use("/api/payroll",payrollRoutes);
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
