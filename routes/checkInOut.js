@@ -111,33 +111,5 @@ router.get("/history/:employeeId", async (req, res) => {
     }
 });
 
-// ✅ Fetch Check-in/Check-out History by Date Range
-router.get("/history/:employeeId", async (req, res) => {
-    try {
-        const { employeeId } = req.params;
-        const { startDate, endDate } = req.query;
-
-        if (!mongoose.Types.ObjectId.isValid(employeeId)) {
-            return res.status(400).json({ message: "❌ Invalid Employee ID" });
-        }
-
-        const start = new Date(startDate);
-        const end = new Date(endDate);
-        end.setDate(end.getDate() + 1); // Include the end date
-
-        const history = await CheckInOut.find({
-            employeeId: employeeId,
-            checkInTime: { $gte: start, $lt: end }
-        }).sort({ checkInTime: -1 });
-
-        if (!history.length) {
-            return res.status(404).json({ message: "❌ No check-in/out records found for the given date range" });
-        }
-
-        res.json({ message: "✅ History fetched successfully", history });
-    } catch (error) {
-        res.status(500).json({ message: "❌ Error fetching history", error: error.message });
-    }
-});
 
 module.exports = router;

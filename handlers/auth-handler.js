@@ -89,9 +89,9 @@ const loginUser = async (email, password) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new Error("Invalid credentials.");
 
-    const token = jwt.sign({ id: user._id ,isAdmin: user.isAdmin }, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
 
-    return { message: "Login successful!", token };
+    return { message: "Login successful!", token,user };
   } catch (error) {
     throw new Error(error.message);
   }
