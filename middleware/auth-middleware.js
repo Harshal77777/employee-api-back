@@ -20,9 +20,11 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-const isAdmin = (req, res, next) => {
-  if (req.user?.isAdmin) {
-    return next();
+function isAdmin(req, res, next) {
+  if (req.user || req.user.isAdmin) {
+    next();
+  } else {
+    return res.status(403).send({ error: "Forbidden" });
   }
   return res.status(403).json({ error: "Forbidden: Admin access required." });
 };

@@ -1,5 +1,3 @@
-
-
 const express = require("express");
 const { 
   registerUser, 
@@ -67,6 +65,7 @@ router.post("/login", async (req, res) => {
     res.status(400).json({ error: error.message || "Invalid Credentials" });
   }
 });
+
 router.post("/forgot-password", async (req, res) => {
   try {
     res.json(await forgotPassword(req.body.email)); // ✅ Now it will work
@@ -96,4 +95,3 @@ router.post("/reset-password", async (req, res) => {
 
 
 module.exports = router;
-
