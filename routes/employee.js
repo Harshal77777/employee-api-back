@@ -15,12 +15,12 @@ const router = express.Router();
 
 // Multer Storage Configuration
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "uploads/");  // Store files in 'uploads' folder
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); // Unique filename
-    }
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
 });
 
 const upload = multer({ storage });
@@ -29,15 +29,19 @@ const upload = multer({ storage });
 router.post("/", upload.fields([{ name: "marksheet" }, { name: "resume" }]), async (req, res) => {
     try {
         const model = req.body;
-        model.marksheet = req.files["marksheet"] ? req.files["marksheet"][0].filename : "";
-        model.resume = req.files["resume"] ? req.files["resume"][0].filename : "";
+        
+        // ✅ Ensure req.files exists before accessing properties
+        model.marksheet = req.files && req.files["marksheet"] ? req.files["marksheet"][0].filename : "";
+        model.resume = req.files && req.files["resume"] ? req.files["resume"][0].filename : "";
 
         const employee = await addEmployee(model);
         res.status(201).json(employee);
     } catch (error) {
+        console.error("Upload Error:", error); // Log the full error for debugging
         res.status(500).json({ message: "Error adding employee", error: error.message });
     }
 });
+
 
 
 
