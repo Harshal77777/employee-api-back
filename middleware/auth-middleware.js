@@ -23,11 +23,10 @@ function verifyToken(req, res, next) {
 
 function isAdmin(req, res, next) {
   if (req.user || req.user.isAdmin) {
-    next();
-  } else {
-    return res.status(403).send({ error: "Forbidden" });
+    return next(); // ✅ Proceed if user is admin
   }
-  return res.status(403).json({ error: "Forbidden: Admin access required." });
+  return res.status(403).json({ error: "Forbidden: Admin access required." }); // ✅ Only one response
 };
+
 
 module.exports = { verifyToken, isAdmin };
