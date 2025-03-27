@@ -22,10 +22,10 @@ const transporter = nodemailer.createTransport({
 const sendOtpEmail = async (email, otp) => {
   try {
     await transporter.sendMail({
-      from:`"Your App" <${EMAIL_USER}>`,
+      from: `"Your App" <${EMAIL_USER}>`,
       to: email,
       subject: "Your OTP Code",
-      text:` Your OTP is: ${otp}. It is valid for 10 minutes.`,
+      text: `Your OTP is: ${otp}. It is valid for 10 minutes.`,
     });
     console.log(`✅ OTP email sent to: ${email}`);
   } catch (error) {
@@ -38,7 +38,7 @@ const sendResetEmail = async (email, resetToken) => {
   try {
     const resetLink = `${FRONTEND_URL}/reset-password/${resetToken}`;
     await transporter.sendMail({
-      from:`"Your App" <${EMAIL_USER}>`,
+      from: `"Your App" <${EMAIL_USER}>`,
       to: email,
       subject: "Reset Your Password",
       text: `Click the link to reset your password: ${resetLink}. It expires in 1 hour.`,
@@ -89,7 +89,12 @@ const loginUser = async (email, password) => {
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new Error("Invalid credentials.");
 
-    const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: "1h" });
+    const token = jwt.sign({ id: user._id ,
+      name: user.name,
+      email: user.email,
+      isAdmin: user.isAdmin 
+    },
+       JWT_SECRET, { expiresIn: "1h" });
 
     return { message: "Login successful!", token,user };
   } catch (error) {
