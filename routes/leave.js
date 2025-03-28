@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User.js');
-const Leaves = require('../models/leave.js'); // Corrected model reference
+const Leaves = require('../models/leave.js');
 
 // 🟢 Submit a leave request (Employee)
 router.post('/', async (req, res) => {
@@ -18,11 +18,11 @@ router.post('/', async (req, res) => {
     }
 
     const newLeave = new Leaves({  
-      email: employee.email, // Removed employeeId, only using email
-      reason, 
-      fromDate, 
-      toDate, 
-      type, 
+      email,
+      reason,
+      fromDate,
+      toDate,
+      type,
       status: 'pending'
     });
 
@@ -64,9 +64,6 @@ router.get('/employee/:email', async (req, res) => {
 router.put('/update/:id', async (req, res) => {
   try {
     const { status } = req.body;
-    if (!['approved', 'rejected', 'pending'].includes(status)) {
-      return res.status(400).json({ error: 'Invalid status' });
-    }
 
     const leave = await Leaves.findByIdAndUpdate(
       req.params.id,
@@ -83,22 +80,6 @@ router.put('/update/:id', async (req, res) => {
   } catch (error) {
     console.error('Error updating leave status:', error);
     res.status(500).json({ error: 'Internal server error' });
-  }
-});
-
-// 🟢 Delete a Leave Request (Admin)
-router.delete('/delete/:id', async (req, res) => {
-  try {
-    const deletedLeave = await Leaves.findByIdAndDelete(req.params.id);
-
-    if (!deletedLeave) {
-      return res.status(404).json({ message: "Leave request not found." });
-    }
-
-    res.status(200).json({ message: "Leave request deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting leave request:", error);
-    res.status(500).json({ error: "Internal server error" });
   }
 });
 
