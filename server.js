@@ -15,7 +15,7 @@ const app = express();
 app.use(express.json());
 
 app.use(cors());
-app.use(cors({ origin: "http://localhost:4200" }));
+app.use(cors({ origin: "http://13.235.80.91:4000" }));
 
 // Database Connection with better error handling
 mongoose
